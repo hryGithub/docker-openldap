@@ -5,7 +5,6 @@ RUN apk update && apk add --no-cache gettext openldap openldap-clients openldap-
 
 ENV SLAPD_ORGANIZATION="My Company" \
     SLAPD_DOMAIN="My-Company.com" \
-    SLAPD_ROOTDN="root" \
     SLAPD_ROOTPASSWORD="admin"
 
 ENV SLAPD_CONF_DIR=/etc/openldap/slapd.d \
