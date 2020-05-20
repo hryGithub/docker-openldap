@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # escape url
 _escurl() { echo $1 | sed 's|/|%2F|g' ;}
@@ -11,7 +11,7 @@ SLAPD_SUFFIX=""
 IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$SLAPD_DOMAIN"
 for i in "${LDAP_BASE_DN_TABLE[@]}"; do
     EXT="dc=$i,"
-    SLAPD_ROOTDN=$SLAPD_SUFFIX$EXT
+    SLAPD_SUFFIX=$SLAPD_SUFFIX$EXT
 done
 
 SLAPD_ROOTDN="cn=admin,$SLAPD_ROOTDN"
