@@ -13,8 +13,9 @@ for i in "${LDAP_BASE_DN_TABLE[@]}"; do
     EXT="dc=$i,"
     SLAPD_SUFFIX=$SLAPD_SUFFIX$EXT
 done
+SLAPD_SUFFIX=${SLAPD_SUFFIX::-1}
 
-SLAPD_ROOTDN="cn=admin,$SLAPD_ROOTDN"
+SLAPD_ROOTDN="cn=admin,$SLAPD_SUFFIX"
 
 DB_DUMP_FILE=/ldap/dump/dbdump.ldif
 
