@@ -7,13 +7,7 @@ _envsubst() { envsubst < $1 > ${SUBST_FILE}; echo ${SUBST_FILE} ; }
 
 host=$(hostname)
 
-SLAPD_SUFFIX=""
-IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$SLAPD_DOMAIN"
-for i in "${LDAP_BASE_DN_TABLE[@]}"; do
-    EXT="dc=$i,"
-    SLAPD_SUFFIX=$SLAPD_SUFFIX$EXT
-done
-SLAPD_SUFFIX=${SLAPD_SUFFIX::-1}
+SLAPD_SUFFIX="dc=${SLAPD_DOMAIN//./,dc=}"
 
 SLAPD_ROOTDN="cn=admin,$SLAPD_SUFFIX"
 
@@ -35,7 +29,7 @@ if [[ ! -d ${SLAPD_CONF_DIR} ]]; then
 
 	echo "SLAPD_ROOTDN = $SLAPD_ROOTDN"
 
-	rootpw_hash=`slappasswd -o module-load=pw-pbkdf2.so -h {PBKDF2-SHA512} -s "${SLAPD_ROOTPW}"`
+	rootpw_hash=`slappasswd -h {SSHA} -s "${SLAPD_ROOTPW}"`
 
 	# builtin schema
 	cat <<-EOF > "$SLAPD_CONF"
@@ -74,17 +68,11 @@ pidfile		/run/openldap/slapd.pid
 argsfile	/run/openldap/slapd.args
 modulepath  /usr/lib/openldap
 moduleload  back_mdb.so
-moduleload  pw-pbkdf2.so
 database config
-rootdn "gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
-access to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by dn.base="$SLAPD_ROOTDN" manage by * break
-database mdb
-access to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage by dn.base="$SLAPD_ROOTDN" manage by * none
 maxsize 1073741824
 suffix "${SLAPD_SUFFIX}"
 rootdn "${SLAPD_ROOTDN}"
 rootpw ${rootpw_hash}
-password-hash {PBKDF2-SHA512}
 directory  ${SLAPD_DATA_DIR}
 EOF
 
