@@ -98,12 +98,12 @@ objectClass: organization
 o: ${SLAPD_ORGANIZATION}
 EOF
 
-echo "Generating configuration"
-slaptest -f ${SLAPD_CONF} -F ${SLAPD_CONF_DIR} -d ${SLAPD_LOG_LEVEL}
-slapadd  -c -F ${SLAPD_CONF_DIR}  -l "${SLAPD_CONF_DIR}/domain.ldif" -n1
-chown -R ldap:ldap ${SLAPD_CONF_DIR}
-chown -R ldap:ldap /run/openldap/
-chown -R ldap:ldap ${SLAPD_DATA_DIR}
-
+    echo "Generating configuration"
+    slaptest -f ${SLAPD_CONF} -F ${SLAPD_CONF_DIR} -d ${SLAPD_LOG_LEVEL}
+    slapadd  -c -F ${SLAPD_CONF_DIR}  -l "${SLAPD_CONF_DIR}/domain.ldif" -n1
+    chown -R ldap:ldap ${SLAPD_CONF_DIR}
+    chown -R ldap:ldap /run/openldap/
+    chown -R ldap:ldap ${SLAPD_DATA_DIR}
+fi
 # Start the slapd service
  slapd -h "ldap:/// ldaps:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
