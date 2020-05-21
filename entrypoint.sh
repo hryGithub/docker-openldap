@@ -106,4 +106,10 @@ EOF
     chown -R ldap:ldap ${SLAPD_DATA_DIR}
 fi
 # Start the slapd service
- slapd -h "ldap:/// ldaps:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
+if [[  -f "${SSL_KEY}"  ]] ; then
+	slapd -h "ldap:/// ldaps:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
+else
+	slapd -h "ldap:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
+fi
+
+exec "$@"
