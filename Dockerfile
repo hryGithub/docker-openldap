@@ -1,7 +1,7 @@
 FROM alpine:3.11
 
 RUN echo -e "http://mirrors.aliyun.com/alpine/v3.11/main\nhttp://mirrors.aliyun.com/alpine/v3.11/community" > /etc/apk/repositories
-RUN apk update && apk add --no-cache bash gettext openldap openldap-clients openldap-back-mdb openldap-passwd-pbkdf2 openldap-overlay-memberof openldap-overlay-ppolicy openldap-overlay-refint
+RUN apk update && apk add --no-cache bash gettext openldap openldap-clients openldap-back-mdb openldap-overlay-memberof openldap-overlay-ppolicy openldap-overlay-refint
 
 ENV SLAPD_ORGANIZATION="example" \
     SLAPD_DOMAIN="example.org" \

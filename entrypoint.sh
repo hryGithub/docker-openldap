@@ -1,17 +1,9 @@
 #!/bin/bash
 
-# escape url
-_escurl() { echo $1 | sed 's|/|%2F|g' ;}
-# substitute environment variables in file
-_envsubst() { envsubst < $1 > ${SUBST_FILE}; echo ${SUBST_FILE} ; }
-
 host=$(hostname)
 
 SLAPD_SUFFIX="dc=${SLAPD_DOMAIN//./,dc=}"
-
 SLAPD_ROOTDN="cn=admin,$SLAPD_SUFFIX"
-
-DB_DUMP_FILE=/ldap/dump/dbdump.ldif
 
 
 if [[ ! -d ${SLAPD_CONF_DIR} ]]; then
@@ -69,6 +61,10 @@ argsfile	/run/openldap/slapd.args
 modulepath  /usr/lib/openldap
 moduleload  back_mdb.so
 database config
+rootdn "gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
+access to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by dn.base="$SLAPD_ROOTDN" manage by * break
+database mdb
+access to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage by dn.base="$SLAPD_ROOTDN" manage by * none
 maxsize 1073741824
 suffix "${SLAPD_SUFFIX}"
 rootdn "${SLAPD_ROOTDN}"
