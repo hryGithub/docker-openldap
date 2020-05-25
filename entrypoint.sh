@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 export OPENLDAP_ETC_DIR="/etc/openldap"
-export OPENLDAP_RUN_DIR="/var/run/openldap"
+export OPENLDAP_RUN_DIR="/run/openldap"
 export OPENLDAP_RUN_ARGSFILE="${OPENLDAP_RUN_DIR}/slapd.args"
 export OPENLDAP_RUN_PIDFILE="${OPENLDAP_RUN_DIR}/slapd.pid"
 export OPENLDAP_MODULES_DIR="/usr/lib/openldap"
