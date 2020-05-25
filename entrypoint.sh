@@ -23,7 +23,7 @@ export LDAP_PASSWORD="${LDAP_PASSWORD:-lderp!${LDAP_DOMAIN_RDC}}"
 export LDAP_PASSWORD_ENCRYPTED="$(slappasswd -u -h '{SSHA}' -s ${LDAP_PASSWORD})"
 
 ulimit -n ${OPENLDAP_ULIMIT}
-mkdir -p ${OPENLDAP_RUN_DIR} && chown -R ldap.ldap ${OPENLDAP_RUN_DIR}
+mkdir -p ${OPENLDAP_RUN_DIR} /srv/openldap.d && chown -R ldap.ldap ${OPENLDAP_RUN_DIR}
 
 if [[ ! -d ${OPENLDAP_CONFIG_DIR}/cn=config ]]; then
     mkdir -p ${OPENLDAP_CONFIG_DIR}
