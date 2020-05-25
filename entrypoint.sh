@@ -89,6 +89,11 @@ EOF
     chown -R ldap:ldap /run/openldap/
     chown -R ldap:ldap ${SLAPD_DATA_DIR}
 fi
+for f in /ldap/ldif/*.ldif ; do
+		echo "> $f"
+		#ldapmodify -x -H ldap://localhost -w ${SLAPD_ROOTPW} -D ${SLAPD_ROOTDN} -f `_envsubst ${f}` -c -d "${LDAPADD_DEBUG_LEVEL}"
+		slapadd -c -F ${SLAPD_CONF_DIR}  -l $f -n1
+done
 # Start the slapd service
 if [[  -f "${SSL_KEY}"  ]] ; then
 	slapd -h "ldap:/// ldaps:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
