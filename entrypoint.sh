@@ -1,116 +1,78 @@
-#!/bin/bash
+#!/bin/sh -e
 
-host=$(hostname)
+export OPENLDAP_ETC_DIR="/etc/openldap"
+export OPENLDAP_RUN_DIR="/var/run/openldap"
+export OPENLDAP_RUN_ARGSFILE="${OPENLDAP_RUN_DIR}/slapd.args"
+export OPENLDAP_RUN_PIDFILE="${OPENLDAP_RUN_DIR}/slapd.pid"
+export OPENLDAP_MODULES_DIR="/usr/lib/openldap"
+export OPENLDAP_CONFIG_DIR="${OPENLDAP_ETC_DIR}/slapd.d"
+export OPENLDAP_BACKEND_DIR="/var/lib/openldap"
+export OPENLDAP_BACKEND_DATABASE="mdb"
+export OPENLDAP_BACKEND_OBJECTCLASS="olcMdbConfig"
+export OPENLDAP_ULIMIT="2048"
 
-SLAPD_SUFFIX="dc=${SLAPD_DOMAIN//./,dc=}"
-SLAPD_ROOTDN="cn=admin,$SLAPD_SUFFIX"
+export LDAP_DOMAIN="${LDAP_DOMAIN:-example.com}"
+export LDAP_DOMAIN_RDC="$(echo ${LDAP_DOMAIN} | sed 's/^\.//; s/\..*$//')"
+# export LDAP_DOMAIN_OBJECTCLASS="organization
+# objectClass: dcObject
+# "
+export LDAP_DOMAIN_OBJECTCLASS="${LDAP_DOMAIN_OBJECTCLASS:-domain}"
+export LDAP_ORGANIZATION="${LDAP_ORGANIZATION:-${LDAP_DOMAIN}}"
+export LDAP_SUFFIX="${LDAP_SUFFIX:-$(echo dc=$(echo ${LDAP_DOMAIN} | sed 's/^\.//; s/\./,dc=/g'))}"
+export LDAP_PASSWORD="${LDAP_PASSWORD:-lderp!${LDAP_DOMAIN_RDC}}"
+export LDAP_PASSWORD_ENCRYPTED="$(slappasswd -u -h '{SSHA}' -s ${LDAP_PASSWORD})"
 
+ulimit -n ${OPENLDAP_ULIMIT}
 
-if [[ ! -d ${SLAPD_CONF_DIR} ]]; then
-	FIRST_START=1
-	if [[ ! -f ${SLAPD_CONF} ]];then
-	 touch ${SLAPD_CONF}
-	fi
-	mkdir -p /run/openldap/
+if [[ ! -d ${OPENLDAP_CONFIG_DIR}/cn=config ]]; then
+    mkdir -p ${OPENLDAP_CONFIG_DIR}
 
-	echo "Configuring OpenLDAP via slapd.d"
-	mkdir -p ${SLAPD_CONF_DIR}
-	chmod -R 750 ${SLAPD_CONF_DIR}
-	mkdir -p ${SLAPD_DATA_DIR}
-	chmod -R 750 ${SLAPD_DATA_DIR}
-
-	echo "SLAPD_ROOTDN = $SLAPD_ROOTDN"
-
-	rootpw_hash=`slappasswd -h {SSHA} -s "${SLAPD_ROOTPW}"`
-
-	# builtin schema
-	cat <<-EOF > "$SLAPD_CONF"
-	include /etc/openldap/schema/core.schema
-	include /etc/openldap/schema/cosine.schema
-	include /etc/openldap/schema/inetorgperson.schema
-	include /etc/openldap/schema/ppolicy.schema
-	EOF
-
-	# user-provided schemas
-	if [[ -d "/ldap/schema" ]] &&  [[ "$(ls -A '/ldap/schema')" ]]; then
-		for f in /ldap/schema/*.schema ; do
-			echo "Including custom schema $f"
-			echo "include $f" >> "$SLAPD_CONF"
-		done
-	fi
-
-    # ssl certs and keys
-    if [[ -d "/ldap/pki" ]]  &&  [[ "$(ls -A '/ldap/pki')" ]]; then
-        CA_CERT=/ldap/pki/ca_cert.pem
-        SSL_KEY=/ldap/pki/key.pem
-        SSL_CERT=/ldap/pki/cert.pem
-
-        # user-provided tls certs
-        if [[ -f ${CA_CERT} ]]; then
-            echo "TLSCACertificateFile ${CA_CERT}" >>  "$SLAPD_CONF"
-        fi
-        echo "TLSCertificateFile ${SSL_CERT}" >>  "$SLAPD_CONF"
-        echo "TLSCertificateKeyFile ${SSL_KEY}" >>  "$SLAPD_CONF"
-        echo "TLSCipherSuite HIGH:-SSLv2:-SSLv3" >>  "$SLAPD_CONF"
+    if [[ ! -s ${OPENLDAP_ETC_DIR}/slapd-config.ldif ]]; then
+        cat /srv/openldap/slapd-config.ldif.template | envsubst > ${OPENLDAP_ETC_DIR}/slapd-config.ldif
     fi
 
+    slapadd -n0 -F ${OPENLDAP_CONFIG_DIR} -l ${OPENLDAP_ETC_DIR}/slapd-config.ldif > ${OPENLDAP_ETC_DIR}/slapd-config.ldif.log
 
-    cat <<-EOF >> "$SLAPD_CONF"
-pidfile		/run/openldap/slapd.pid
-argsfile	/run/openldap/slapd.args
-modulepath  /usr/lib/openldap
-moduleload  back_mdb.so
-database config
-rootdn "gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
-access to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by dn.base="$SLAPD_ROOTDN" manage by * break
-database mdb
-access to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage by dn.base="$SLAPD_ROOTDN" manage by * none
-maxsize 1073741824
-suffix "${SLAPD_SUFFIX}"
-rootdn "${SLAPD_ROOTDN}"
-rootpw ${rootpw_hash}
-directory  ${SLAPD_DATA_DIR}
-EOF
+    if [[ ! -s ${OPENLDAP_ETC_DIR}/ldap.conf ]]; then
+        cat /srv/openldap/ldap.conf.template | envsubst > ${OPENLDAP_ETC_DIR}/ldap.conf
+    fi
 
+    mkdir -p ${OPENLDAP_BACKEND_DIR}/run
+    chown -R ldap:ldap ${OPENLDAP_BACKEND_DIR}
+    chown -R ldap:ldap ${OPENLDAP_CONFIG_DIR} ${OPENLDAP_BACKEND_DIR}
 
-    cat <<-EOF > "${SLAPD_CONF_DIR}/domain.ldif"
-dn: ${SLAPD_SUFFIX}
-dc: ${SLAPD_DOMAIN}
-objectClass: top
-objectClass: dcObject
-objectClass: organization
-o: ${SLAPD_ORGANIZATION}
+    if [[ -d /srv/openldap.d ]]; then
+        if [[ ! -s /srv/openldap.d/000-domain.ldif ]]; then
+            cat /srv/openldap/domain.ldif.template | envsubst > /srv/openldap.d/000-domain.ldif
+        fi
 
-dn: cn=admin,${SLDAP_SUFFIX}
-objectClass: organizationalRole
-cn: admin
+        slapd_exe=$(which slapd)
+        echo >&2 "$0 ($slapd_exe): starting initdb daemon"
+        slapd -u ldap -g ldap -h ldapi:///
 
-dn: ou=users,${SLDAP_SUFFIX}
-objectClass: organizationalUnit
-ou: users
+        for f in $(find /srv/openldap.d -type f | sort); do
+            case "$f" in
+                *.sh)   echo "$0: sourcing $f"; . "$f" ;;
+                *.ldif) echo "$0: applying $f"; ldapadd -Y EXTERNAL -f "$f" 2>&1;;
+                *)      echo "$0: ignoring $f" ;;
+            esac
+        done
 
-dn: ou=groups,${SLDAP_SUFFIX}
-objectClass: organizationalUnit
-ou: groups
-EOF
-
-    echo "Generating configuration"
-    slaptest -f ${SLAPD_CONF} -F ${SLAPD_CONF_DIR} -d ${SLAPD_LOG_LEVEL}
-    slapadd  -c -F ${SLAPD_CONF_DIR}  -l "${SLAPD_CONF_DIR}/domain.ldif" -n1
-    chown -R ldap:ldap ${SLAPD_CONF_DIR}
-    chown -R ldap:ldap /run/openldap/
-    chown -R ldap:ldap ${SLAPD_DATA_DIR}
-fi
-for f in /ldap/ldif/*.ldif ; do
-		echo "> $f"
-		#ldapmodify -x -H ldap://localhost -w ${SLAPD_ROOTPW} -D ${SLAPD_ROOTDN} -f `_envsubst ${f}` -c -d "${LDAPADD_DEBUG_LEVEL}"
-		slapadd -c -F ${SLAPD_CONF_DIR}  -l $f -n1
-done
-# Start the slapd service
-if [[  -f "${SSL_KEY}"  ]] ; then
-	slapd -h "ldap:/// ldaps:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
-else
-	slapd -h "ldap:///" -F ${SLAPD_CONF_DIR} -u ldap -g ldap -d "${SLAPD_LOG_LEVEL}"
+        if [[ ! -s ${OPENLDAP_RUN_PIDFILE} ]]; then
+            echo >&2 "$0 ($slapd_exe): ${OPENLDAP_RUN_PIDFILE} is missing, did the daemon start?"
+            exit 1
+        else
+            slapd_pid=$(cat ${OPENLDAP_RUN_PIDFILE})
+            echo >&2 "$0 ($slapd_exe): sending SIGINT to initdb daemon with pid=$slapd_pid"
+            kill -s INT "$slapd_pid" || true
+            while : ; do
+                [[ ! -f ${OPENLDAP_RUN_PIDFILE} ]] && break
+                sleep 1
+                echo >&2 "$0 ($slapd_exe): initdb daemon is still up, sleeping ..."
+            done
+            echo >&2 "$0 ($slapd_exe): initdb daemon stopped"
+        fi
+    fi
 fi
 
 exec "$@"
