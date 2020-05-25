@@ -15,6 +15,7 @@ ENV SLAPD_CONF_DIR=/etc/openldap/slapd.d \
 
 COPY ldap/ /ldap/
 
+
 EXPOSE 389 636
 COPY entrypoint.sh /entrypoint.sh
 
