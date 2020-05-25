@@ -80,6 +80,18 @@ objectClass: top
 objectClass: dcObject
 objectClass: organization
 o: ${SLAPD_ORGANIZATION}
+
+dn: cn=admin,${SLDAP_SUFFIX}
+objectClass: organizationalRole
+cn: admin
+
+dn: ou=users,${SLDAP_SUFFIX}
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,${SLDAP_SUFFIX}
+objectClass: organizationalUnit
+ou: groups
 EOF
 
     echo "Generating configuration"
