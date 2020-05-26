@@ -4,7 +4,7 @@ dn: ${LDAP_SUFFIX}
 objectClass: top
 objectClass: dcObject
 objectClass: organization
-dc: ${LDAP_DOMAIN}
+dc: ${LAPD_ORGANIZATION}
 o: ${LAPD_ORGANIZATION}
 
 dn: cn=admin,${LDAP_SUFFIX}

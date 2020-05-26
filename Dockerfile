@@ -7,7 +7,7 @@ RUN mv -vf /etc/openldap/ldap.conf /etc/openldap/ldap.conf.original && mv -vf /e
 ENV LAPD_ORGANIZATION=example \
     LDAP_DOMAIN=example.org \
     LDAP_PASSWORD=admin \
-    LDAP_LOGLEVE=1
+    LDAP_LOGLEVE=256
 
 
 EXPOSE 389 636
