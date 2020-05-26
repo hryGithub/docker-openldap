@@ -15,7 +15,7 @@ olcPidFile: /var/run/openldap/slapd.pid
 olcArgsFile: /var/run/openldap/slapd.args
 #
 # Read slapd.conf(5) for possible values
-olcLogLevel: ${LDAP_LOGLEVE}
+olcLogLevel: none
 #
 # The tool-threads parameter sets the actual amount of cpu's that is used for indexing.
 olcToolThreads: 1

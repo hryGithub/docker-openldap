@@ -9,7 +9,6 @@ ENV LAPD_ORGANIZATION=example \
     LDAP_PASSWORD=admin \
     LDAP_LOGLEVE=256
 
-
 EXPOSE 389 636
 
 COPY *.template /srv/openldap/
