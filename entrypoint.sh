@@ -1,9 +1,9 @@
 #!/bin/sh -e
-OPENLDAP_CONFIG_DIR="/etc/openldap/slapd.d"
-OPENLDAP_ULIMIT="2048"
+export OPENLDAP_CONFIG_DIR="/etc/openldap/slapd.d"
+export OPENLDAP_ULIMIT="2048"
 
-LDAP_SUFFIX="dc=${LDAP_DOMAIN//./,dc=}"
-LDAP_PASSWORD_ENCRYPTED="$(slappasswd -u -h '{SSHA}' -s ${LDAP_PASSWORD})"
+export LDAP_SUFFIX="dc=${LDAP_DOMAIN//./,dc=}"
+export LDAP_PASSWORD_ENCRYPTED="$(slappasswd -u -h '{SSHA}' -s ${LDAP_PASSWORD})"
 
 ulimit -n ${OPENLDAP_ULIMIT}
 mkdir -p /var/run/openldap /var/lib/openldap/run /srv/openldap.d 
