@@ -6,7 +6,7 @@ LDAP_SUFFIX="dc=${LDAP_DOMAIN//./,dc=}"
 LDAP_PASSWORD_ENCRYPTED="$(slappasswd -u -h '{SSHA}' -s ${LDAP_PASSWORD})"
 
 ulimit -n ${OPENLDAP_ULIMIT}
-mkdir -p /var/run/openldap /srv/openldap.d && chown -R ldap.ldap /var/run/openldap
+mkdir -p /var/run/openldap /srv/openldap.d 
 
 if [[ ! -d ${OPENLDAP_CONFIG_DIR}/cn=config ]]; then
     mkdir -p ${OPENLDAP_CONFIG_DIR}
@@ -21,7 +21,7 @@ if [[ ! -d ${OPENLDAP_CONFIG_DIR}/cn=config ]]; then
         cat /srv/openldap/ldap.conf.template | envsubst > /etc/openldap/ldap.conf
     fi
 
-    chown -R ldap:ldap ${OPENLDAP_CONFIG_DIR} 
+    chown -R ldap:ldap ${OPENLDAP_CONFIG_DIR} && chown -R ldap.ldap /var/run/openldap
 
     if [[ -d /srv/openldap.d ]]; then
         if [[ ! -s /srv/openldap.d/000-domain.ldif ]]; then

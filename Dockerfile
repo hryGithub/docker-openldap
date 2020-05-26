@@ -6,7 +6,8 @@ RUN mv -vf /etc/openldap/ldap.conf /etc/openldap/ldap.conf.original && mv -vf /e
 
 ENV LAPD_ORGANIZATION=example \
     LDAP_DOMAIN=example.org \
-    LDAP_PASSWORD=admin
+    LDAP_PASSWORD=admin \
+    LDAP_LOGLEVE=1
 
 
 EXPOSE 389 636
@@ -16,4 +17,4 @@ COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 
-CMD ["slapd", "-h", "ldapi:/// ldap:///", "-u", "ldap", "-g", "ldap", "-d", "none"]
+CMD ["slapd", "-h", "ldapi:/// ldap:///", "-u", "ldap", "-g", "ldap", "-d", "$LDAP_LOGLEVE"]
