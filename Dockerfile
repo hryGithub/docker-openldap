@@ -16,5 +16,3 @@ COPY *.template /srv/openldap/
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
-
-CMD ["slapd", "-h", "ldapi:/// ldap:///", "-u", "ldap", "-g", "ldap", "-d", "$LDAP_LOGLEVE"]

@@ -57,4 +57,6 @@ if [[ ! -d ${OPENLDAP_CONFIG_DIR}/cn=config ]]; then
     fi
 fi
 
+slapd -h "ldap:/// ldapi:///"  -F ${OPENLDAP_CONFIG_DIR} -u ldap -g ldap -d "${LDAP_LOGLEVE}"
+
 exec "$@"
