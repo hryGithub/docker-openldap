@@ -23,6 +23,6 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: hyr326/openldap
-        tags: "v${{ env.RELEASE_VERSION }},latest"
+        tags: "latest"
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
