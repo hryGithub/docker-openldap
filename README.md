@@ -1,4 +1,4 @@
 # quick start
-    docker run -d -p 80:80 -e DB_HOST= -e DB_PORT= -e DB_NAME= -e DB_USER= -e DB_PASSWORD= -e REDIS_HOST= -e REDIS_PORT= hyr326/spug:latest
+    docker run -d --name openldap --restart on-failure:5 -p 389:389 -e LAPD_ORGANIZATION=example -e LDAP_DOMAIN=example.org -e LDAP_PASSWORD=admin hyr326/openldap:latest
 
 
