@@ -6,7 +6,12 @@ export LDAP_SUFFIX="dc=${LDAP_DOMAIN//./,dc=}"
 export LDAP_PASSWORD_ENCRYPTED="$(slappasswd -u -h '{SSHA}' -s ${LDAP_PASSWORD})"
 
 ulimit -n ${OPENLDAP_ULIMIT}
-mkdir -p /var/run/openldap /var/lib/openldap/run /srv/openldap.d 
+mkdir -p /var/run/openldap /var/lib/openldap/run /srv/openldap.d
+
+# RFC2307bis schema
+if [ "${LDAP_RFC2307BIS_SCHEMA}" == "true" ]; then
+    sed -i "s@nis.ldif@rfc2307bis.ldif@g" /srv/openldap/slapd-config.ldif.template
+fi
 
 if [[ ! -d ${OPENLDAP_CONFIG_DIR}/cn=config ]]; then
     mkdir -p ${OPENLDAP_CONFIG_DIR}

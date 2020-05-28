@@ -7,11 +7,13 @@ RUN mv -vf /etc/openldap/ldap.conf /etc/openldap/ldap.conf.original && mv -vf /e
 ENV LAPD_ORGANIZATION=example \
     LDAP_DOMAIN=example.org \
     LDAP_PASSWORD=admin \
-    LDAP_LOGLEVE=256
+    LDAP_RFC2307BIS_SCHEMA=false \
+    LDAP_LOGLEVE=1
 
 EXPOSE 389 636
 
 COPY *.template /srv/openldap/
+COPY rfc2307bis.* /etc/openldap/schema/
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
