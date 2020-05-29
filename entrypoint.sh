@@ -58,6 +58,13 @@ cn: admin
 
     chown -R ldap:ldap ${LDAP_CONF_DIR} /var/run/openldap /var/lib/openldap
 
+    # init
+    slapd -u ldap -g ldap -h ldapi:///
+    for f in $(find /etc/openldap/init-ldif/ -name "*.ldif" -type f | sort); do
+        ldapadd -Y EXTERNAL -f $f
+    done
+    kill -s INT $(cat /run/openldap/slapd.pid) 
+
 fi
 
 slapd -h "ldap:/// ldapi:///"  -F ${LDAP_CONF_DIR} -u ldap -g ldap -d "${LDAP_LOGLEVE}"
