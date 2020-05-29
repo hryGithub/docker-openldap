@@ -21,11 +21,7 @@ pidfile		/run/openldap/slapd.pid
 argsfile	/run/openldap/slapd.args
 modulepath  /usr/lib/openldap
 moduleload  back_mdb.so
-database config
-rootdn "gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
-access to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by dn.base="$LDAP_ROOTDN" manage by * break
 database mdb
-access to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage by dn.base="$LDAP_ROOTDN" manage by * none
 maxsize 1073741824
 suffix "${LDAP_SUFFIX}"
 rootdn "${LDAP_ROOTDN}"
@@ -46,6 +42,15 @@ objectClass: organizationalRole
 cn: admin
 	EOF
 
+    cat <<-EOF > "${LDAP_CONF_DIR}/security.ldif"
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+delete: olcAccess
+-
+add: olcAccess
+olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="${LDAP_ROOTDN}" write by anonymous auth by * none
+olcAccess: to * by self read by dn="${LDAP_ROOTDN}" write by * none
+	EOF
 
     # RFC2307bis schema
     if [ "${LDAP_RFC2307BIS_SCHEMA}" == "true" ]; then
@@ -55,15 +60,9 @@ cn: admin
     echo "Generating configuration"
     slaptest -f ${LDAP_CONF} -F ${LDAP_CONF_DIR} -d ${LDAP_LOGLEVE}
     slapadd  -c -F ${LDAP_CONF_DIR}  -l "${LDAP_CONF_DIR}/base.ldif" 
-
+    slapadd  -c -F ${LDAP_CONF_DIR}  -l "${LDAP_CONF_DIR}/security.ldif"
+    
     chown -R ldap:ldap ${LDAP_CONF_DIR} /var/run/openldap /var/lib/openldap
-
-    # init
-    #slapd -u ldap -g ldap -h ldapi:///
-    #for f in $(find /etc/openldap/init-ldif/ -name "*.ldif" -type f | sort); do
-        #ldapmodify -Y EXTERNAL -f $f
-    #done
-    #kill -s INT $(cat /run/openldap/slapd.pid) 
 
 fi
 
