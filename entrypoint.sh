@@ -17,9 +17,6 @@ include /etc/openldap/schema/core.schema
 include /etc/openldap/schema/cosine.schema
 include /etc/openldap/schema/nis.schema
 include /etc/openldap/schema/inetorgperson.schema
-	EOF
-
-    cat <<-EOF >> "$LDAP_CONF"
 pidfile		/run/openldap/slapd.pid
 argsfile	/run/openldap/slapd.args
 modulepath  /usr/lib/openldap
@@ -52,12 +49,12 @@ cn: admin
 
     # RFC2307bis schema
     if [ "${LDAP_RFC2307BIS_SCHEMA}" == "true" ]; then
-        sed -i "s@nis.ldif@rfc2307bis.ldif@g" $LDAP_CONF
+        sed -i "s@nis.schema@rfc2307bis.schema@g" $LDAP_CONF
     fi
 
     echo "Generating configuration"
-	slaptest -f ${LDAP_CONF} -F ${LDAP_CONF_DIR} -d ${LDAP_LOGLEVE}
-    slapadd  -c -F ${LDAP_CONF_DIR}  -l "${SLDAP_CONF_DIR}/base.ldif" 
+    slaptest -f ${LDAP_CONF} -F ${LDAP_CONF_DIR} -d ${LDAP_LOGLEVE}
+    slapadd  -c -F ${LDAP_CONF_DIR}  -l "${LDAP_CONF_DIR}/base.ldif" 
 
     chown -R ldap:ldap ${LDAP_CONF_DIR} /var/run/openldap /var/lib/openldap
 
