@@ -57,7 +57,7 @@ cn: admin
 
     echo "Generating configuration"
 	slaptest -f ${LDAP_CONF} -F ${LDAP_CONF_DIR} -d ${LDAP_LOGLEVE}
-    slapadd  -c -F ${LDAP_CONF_DIR}  -l "${SLDAP_CONF_DIR}/base.ldif" -n1
+    slapadd  -c -F ${LDAP_CONF_DIR}  -l "${SLDAP_CONF_DIR}/base.ldif" 
 
     chown -R ldap:ldap ${LDAP_CONF_DIR} /var/run/openldap /var/lib/openldap
 
