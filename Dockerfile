@@ -12,7 +12,6 @@ ENV LDAP_ORGANIZATION=example \
 
 EXPOSE 389 636
 
-#ADD ./init-ldif /etc/openldap/init-ldif
 COPY rfc2307bis.* /etc/openldap/schema/
 COPY entrypoint.sh /entrypoint.sh
 
