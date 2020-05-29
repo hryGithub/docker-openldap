@@ -59,11 +59,11 @@ cn: admin
     chown -R ldap:ldap ${LDAP_CONF_DIR} /var/run/openldap /var/lib/openldap
 
     # init
-    slapd -u ldap -g ldap -h ldapi:///
-    for f in $(find /etc/openldap/init-ldif/ -name "*.ldif" -type f | sort); do
-        ldapadd -Y EXTERNAL -f $f
-    done
-    kill -s INT $(cat /run/openldap/slapd.pid) 
+    #slapd -u ldap -g ldap -h ldapi:///
+    #for f in $(find /etc/openldap/init-ldif/ -name "*.ldif" -type f | sort); do
+        #ldapmodify -Y EXTERNAL -f $f
+    #done
+    #kill -s INT $(cat /run/openldap/slapd.pid) 
 
 fi
 
