@@ -15,6 +15,6 @@ EXPOSE 389 636
 COPY rfc2307bis.* /etc/openldap/schema/
 COPY entrypoint.sh /entrypoint.sh
 
-VOLUME ['/etc/openldap/slapd.d','/var/lib/openldap/openldap-data']
+VOLUME ["/etc/openldap/slapd.d", "/var/lib/openldap/openldap-data"]
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
