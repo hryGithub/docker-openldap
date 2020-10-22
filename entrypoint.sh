@@ -47,7 +47,7 @@ dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange 
-    by self write 
+    by self =xw 
     by dn="${LDAP_ROOTDN}" write 
     by anonymous auth 
     by * none
