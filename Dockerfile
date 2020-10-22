@@ -18,4 +18,5 @@ COPY entrypoint.sh /entrypoint.sh
 
 VOLUME ["/etc/openldap/slapd.d", "/var/lib/openldap/openldap-data"]
 
+
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

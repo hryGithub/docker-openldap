@@ -45,8 +45,6 @@ cn: admin
     cat <<-EOF > "${LDAP_CONF_DIR}/security.ldif"
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
-delete: olcAccess
--
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange 
     by self write 
