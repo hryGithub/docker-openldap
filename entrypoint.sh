@@ -48,8 +48,15 @@ changetype: modify
 delete: olcAccess
 -
 add: olcAccess
-olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="${LDAP_ROOTDN}" write by anonymous auth by * none
-olcAccess: to * by self read by dn="${LDAP_ROOTDN}" write by * none
+olcAccess: to attrs=userPassword,shadowLastChange 
+    by self write 
+    by dn="${LDAP_ROOTDN}" write 
+    by anonymous auth 
+    by * none
+olcAccess: to * 
+    by self read 
+    by dn="${LDAP_ROOTDN}" write 
+    by * none
 	EOF
 
     # RFC2307bis schema
