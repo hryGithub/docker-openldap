@@ -17,6 +17,7 @@ include /etc/openldap/schema/core.schema
 include /etc/openldap/schema/cosine.schema
 include /etc/openldap/schema/nis.schema
 include /etc/openldap/schema/inetorgperson.schema
+include /etc/openldap/schema/ppolicy.schema
 pidfile		/run/openldap/slapd.pid
 argsfile	/run/openldap/slapd.args
 modulepath  /usr/lib/openldap
@@ -47,7 +48,7 @@ dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange 
-    by self =xw 
+    by self write
     by dn="${LDAP_ROOTDN}" write 
     by anonymous auth 
     by * none
