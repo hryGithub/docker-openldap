@@ -46,16 +46,12 @@ cn: admin
     cat <<-EOF > "${LDAP_CONF_DIR}/security.ldif"
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
+delete: olcAccess
+-
 add: olcAccess
-olcAccess: to attrs=userPassword,shadowLastChange 
-    by self write
-    by dn="${LDAP_ROOTDN}" write 
-    by anonymous auth 
-    by * none
-olcAccess: to * 
-    by self read 
-    by dn="${LDAP_ROOTDN}" write 
-    by * none
+olcAccess: to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
+olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="${LDAP_ROOTDN}" write by anonymous auth by * none
+olcAccess: to * by self read by dn="${LDAP_ROOTDN}" write by * none
 	EOF
 
     # RFC2307bis schema
