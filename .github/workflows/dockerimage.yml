@@ -16,9 +16,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: get_version
-      id: get_version
-      run: echo ::set-env name=RELEASE_VERSION::$(echo $(grep "VERSION=" Dockerfile|cut -d"=" -f2))
     - name: Build and publish images
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
