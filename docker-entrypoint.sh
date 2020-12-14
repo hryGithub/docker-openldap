@@ -20,6 +20,15 @@ include /etc/openldap/schema/inetorgperson.schema
 include /etc/openldap/schema/ppolicy.schema
 pidfile		/run/openldap/slapd.pid
 argsfile	/run/openldap/slapd.args
+access to attrs=userPassword,shadowLastChange
+        by dn="${LDAP_ROOTDN}" write
+        by anonymous auth
+        by self write
+        by * none
+access to *
+        by dn="${LDAP_ROOTDN}" write
+        by * read
+
 modulepath  /usr/lib/openldap
 moduleload  back_mdb.so
 database mdb
@@ -43,17 +52,6 @@ objectClass: organizationalRole
 cn: admin
 	EOF
 
-    cat <<-EOF > "${LDAP_CONF_DIR}/security.ldif"
-dn: olcDatabase={1}mdb,cn=config
-changetype: modify
-delete: olcAccess
--
-add: olcAccess
-olcAccess: to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
-olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="${LDAP_ROOTDN}" write by anonymous auth by * none
-olcAccess: to * by self read by dn="${LDAP_ROOTDN}" write by * none
-	EOF
-
     # RFC2307bis schema
     if [ "${LDAP_RFC2307BIS_SCHEMA}" == "true" ]; then
         sed -i "s@nis.schema@rfc2307bis.schema@g" $LDAP_CONF
@@ -62,7 +60,6 @@ olcAccess: to * by self read by dn="${LDAP_ROOTDN}" write by * none
     echo "Generating configuration"
     slaptest -f ${LDAP_CONF} -F ${LDAP_CONF_DIR} -d ${LDAP_LOGLEVE}
     slapadd  -c -F ${LDAP_CONF_DIR}  -l "${LDAP_CONF_DIR}/base.ldif" 
-    slapadd  -c -F ${LDAP_CONF_DIR}  -l "${LDAP_CONF_DIR}/security.ldif"
     
     chown -R ldap:ldap ${LDAP_CONF_DIR} /var/run/openldap /var/lib/openldap
 
