@@ -13,6 +13,7 @@ ENV LDAP_ORGANIZATION=example \
 
 EXPOSE 389
 
+
 COPY rfc2307bis.* /etc/openldap/schema/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
